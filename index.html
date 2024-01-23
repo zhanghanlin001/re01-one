@@ -1,0 +1,47 @@
+<p>安装 Shairport-sync 的工具和库。
+第一步总是更新和升级我们系统上的软件包和依赖关系。
+sudo apt update
+sudo apt upgrade
+现在，我们需要安装所有必要的软件包。
+sudo apt install --no-install-recommends build-essential git xxd xmltoman autoconf automake libtool libpopt-dev libconfig-dev libasound2-dev avahi-daemon libavahi-client-dev libssl-dev libsoxr-dev libplist-dev libsodium-dev libavutil-dev libavcodec-dev libavformat-dev uuid-dev libgcrypt-dev
+禁用 Wi-Fi 电源管理。
+如果您的设备使用 Wi-Fi，请禁用 Wi-Fi 电源管理功能。当 Wi-Fi 连接处于非活动状态时，它将使 Wi-Fi 系统进入低功耗模式。在这种模式下，它可能无法响应 AirPlay 请求。
+sudo iwconfig wlan0 power off
+安装 NQPTP    安装不成！！！！！！！！！！！！！！！！！！
+NQPTP 是 Shairport-sync 的配套应用程序，因此我们也需要安装此应用程序才能使 Shairport-sync 正常工作。
+git clone https://github.com/mikebrady/nqptp.git
+cd nqptp
+autoreconf -fi 
+./configure --with-systemd-startup
+make
+sudo make install
+接下来，我们将 NQPTP 服务设置为在下次系统重启时自动启动，现在就启动它。
+sudo systemctl enable nqptp
+sudo systemctl start nqptp
+
+安装 Shairport-sync
+在此，我们开始克隆 Shairport-sync 仓库，并查看开发分支（用于 AirPlay2）。自动配置步骤可能需要一段时间处理。
+cd
+git clone https://github.com/mikebrady/shairport-sync.git
+cd shairport-sync
+autoreconf -fi
+./configure --sysconfdir=/etc --with-alsa \
+    --with-soxr --with-avahi --with-ssl=openssl --with-systemd --with-airplay-2
+make -j
+sudo make install
+安装完成后，我们可以继续配置 Shairport-sync。
+改名
+sudo nano /etc/shairport-sync.conf
+配置文件已经有非常全面的注释，解释了每个字段。我只更改了设备名称，其他均保持默认。
+general = {
+    name = "Lenovo-G475-AirPlay2-Adapter";
+};
+使用 ctrl + o 保存文件，使用 ctrl + x 退出文本编辑器。
+sudo systemctl restart shairport-sync
+
+
+保存文件后，我们需要启用 Shairport-sync 服务，使其在下次系统启动时自动启动。
+sudo systemctl enable shairport-sync
+sudo systemctl start shairport-sync</p>
+
+
